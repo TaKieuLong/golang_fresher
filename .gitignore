@@ -56,7 +56,7 @@ data/
 *.env.*
 
 # Configurations that should stay local
-config/*.local.yaml
+config/*.production.yaml
 config/*.secret.yaml
 config/*.dev.yaml
 
