@@ -1,11 +1,9 @@
 package main
 
 import (
-	"github.com/TaKieuLong/golang_fresher/internal/routers"
+	"github.com/TaKieuLong/golang_fresher/internal/initialize"
 )
 
 func main() {
-  r := routers.NewRouter()
- 
-  r.Run(":8002")
+initialize.Run()
 }
