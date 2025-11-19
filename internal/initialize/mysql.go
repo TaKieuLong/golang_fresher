@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/TaKieuLong/golang_fresher/global"
+	"github.com/TaKieuLong/golang_fresher/internal/po"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -27,6 +28,7 @@ global.Logger.Info("InitMysql success")
 global.Mdb = db
 
 SetPool()
+migrateTables()
 }
 // InitMySql().SetPool()
 func SetPool() {
@@ -42,5 +44,11 @@ func SetPool() {
 }
 
 func migrateTables() {
-
+	err:= global.Mdb.AutoMigrate(
+		&po.User{},
+		&po.Role{},
+	)
+	if err != nil{
+		fmt.Println("Migrating table error:", err)
+	}
 }
