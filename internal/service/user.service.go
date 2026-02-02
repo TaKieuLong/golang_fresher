@@ -1,17 +1,47 @@
 package service
 
-import "github.com/TaKieuLong/golang_fresher/internal/repo"
+import (
+	"fmt"
 
-type UserService struct {
-	userRepo *repo.UserRepo
+	"github.com/TaKieuLong/golang_fresher/internal/repo"
+	"github.com/TaKieuLong/golang_fresher/pkg/crypto"
+	"github.com/TaKieuLong/golang_fresher/pkg/response"
+)
+
+type IUserService interface {
+	Register(email string, purpose string) int
 }
 
-func NewUserSerivce() *UserService {
-	return &UserService{
-		userRepo: repo.NewUserRepo(),
+type userService struct {
+	userRepo repo.IUserRepository
+	userAuthRepo repo.IUserAuthRepository
+}
+
+func NewUserService(
+userRepo repo.IUserRepository,
+userAuthRepo repo.IUserAuthRepository) IUserService{
+	return &userService{
+		userRepo: userRepo,
+		userAuthRepo: userAuthRepo,
 	}
 }
 
-func (us *UserService) GetInfoUser() string {
-	return us.userRepo.GetInfoUser()
+func (us *userService) Register(email string, purpose string) int {
+	hashEmail := crypto.GetHash(email)
+	fmt.Sprintf("hashEmail: %s", hashEmail)
+	if us.userRepo.GetUserByEmail(email) {
+		return response.ErrCodeUserHasExists
+	}
+
+	otp := random.GenerateSixDigitOtp()
+
+	if purpose == "TEST_USER" {
+		otp = 123456
+	}
+	err := us.userAuthRepo.AddOTP(hashEmail, otp, int64(10*time.Minute))
+	if err != nil {
+		return response.ErrInvalidOTP
+	}
+	return response.ErrCodeSuccess
 }
+
