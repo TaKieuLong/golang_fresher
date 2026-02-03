@@ -42,6 +42,12 @@ func (us *userService) Register(email string, purpose string) int {
 	if err != nil {
 		return response.ErrInvalidOTP
 	}
-	return response.ErrCodeSuccess
+	//semdEmail OTP
+	err = sendto.SendTextEmailOtp([]string{email}, email, otp)
+	if err != nil {
+		return response.ErrInvalidOTP
+	}
+	//
+	return response.ErrCodeSuccess									
 }
 
