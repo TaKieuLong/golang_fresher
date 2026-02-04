@@ -1,10 +1,14 @@
 package service
 
 import (
+	"crypto/sha256"
 	"fmt"
+	"time"
 
 	"github.com/TaKieuLong/golang_fresher/internal/repo"
-	"github.com/TaKieuLong/golang_fresher/pkg/crypto"
+	"github.com/TaKieuLong/golang_fresher/internal/utils/random"
+	"github.com/TaKieuLong/golang_fresher/internal/utils/sendto"
+
 	"github.com/TaKieuLong/golang_fresher/pkg/response"
 )
 
@@ -27,8 +31,8 @@ userAuthRepo repo.IUserAuthRepository) IUserService{
 }
 
 func (us *userService) Register(email string, purpose string) int {
-	hashEmail := crypto.GetHash(email)
-	fmt.Sprintf("hashEmail: %s", hashEmail)
+	hash := sha256.Sum256([]byte(email))
+	hashEmail := fmt.Sprintf("%x", hash)
 	if us.userRepo.GetUserByEmail(email) {
 		return response.ErrCodeUserHasExists
 	}
@@ -43,8 +47,8 @@ func (us *userService) Register(email string, purpose string) int {
 		return response.ErrInvalidOTP
 	}
 	//semdEmail OTP
-	err = sendto.SendTextEmailOtp([]string{email}, email, otp)
-	if err != nil {
+	_,err = sendto.SendTextEmailOtp([]string{email}, email, string(otp))
+	if err != nil {	
 		return response.ErrInvalidOTP
 	}
 	//

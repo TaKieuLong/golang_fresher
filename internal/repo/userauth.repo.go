@@ -1,6 +1,12 @@
 package repo
 
-import "github.com/TaKieuLong/golang_fresher/internal/model"
+import (
+	"fmt"
+	"time"
+
+	"github.com/TaKieuLong/golang_fresher/global"
+	"gorm.io/gorm"
+)
 
 type IUserAuthRepository interface {
 AddOTP(email string, otp int, expirationTime int64) error

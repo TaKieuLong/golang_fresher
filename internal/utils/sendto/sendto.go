@@ -2,7 +2,11 @@ package sendto
 
 import (
 	"fmt"
+	"net/smtp"
 	"strings"
+
+	"github.com/TaKieuLong/golang_fresher/global"
+	"go.uber.org/zap"
 )
 const (
 	SMTP_HOST = "takieulong@gmail.com"
@@ -44,8 +48,8 @@ func SendTextEmailOtp(to []string, from string, otp string) (string, error) {
 	auth:= smtp.PlainAuth("", SMTP_USER, SMTP_PASSWORD, SMTP_HOST)
 	err := smtp.SendMail(fmt.Sprintf("%s:%d", SMTP_HOST, SMTP_PORT), auth, from, to, []byte(messageEmail))
 	if err != nil {
-		global.logger.Error("Send email failed::", zap.Error(err))
+		global.Logger.Error("Send email failed::", zap.Error(err))
 		return "", err
 	}
-	return nil
+	return "", nil
 }	

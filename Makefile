@@ -1,6 +1,9 @@
 # name App
 APP_NAME = server
 
+dev:
+	go run ./cmd/server/main.go
+
 run:
 	go run ./cmd/${APP_NAME}/
 

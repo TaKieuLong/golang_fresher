@@ -1,5 +1,10 @@
 package repo
 
+import (
+	"github.com/TaKieuLong/golang_fresher/global"
+	"github.com/TaKieuLong/golang_fresher/internal/model"
+)
+
 // type UserRepo struct{}
 
 // func NewUserRepo() *UserRepo {
@@ -20,5 +25,7 @@ func NewUserRepository() IUserRepository {
 }
 
 func (ur *userRepository) GetUserByEmail(email string) bool {
-	return true
+	//SELECT * FROM users WHERE email = email order by id desc limit 1
+	row := global.Mdb.Table(TableUser).Where("usr_email = ?", email).First(&model.GoCrmUser{}).RowsAffected
+	return row != NumberNull	
 }
