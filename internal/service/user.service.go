@@ -3,6 +3,7 @@ package service
 import (
 	"crypto/sha256"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/TaKieuLong/golang_fresher/internal/repo"
@@ -47,7 +48,9 @@ func (us *userService) Register(email string, purpose string) int {
 		return response.ErrInvalidOTP
 	}
 	//semdEmail OTP
-	_,err = sendto.SendTextEmailOtp([]string{email}, email, string(otp))
+	err = sendto.SendTemplateEmailOtp([]string{email}, email, "otp.auth.html", map[string]interface{}{
+		"otp": strconv.Itoa(otp),
+	})
 	if err != nil {	
 		return response.ErrInvalidOTP
 	}

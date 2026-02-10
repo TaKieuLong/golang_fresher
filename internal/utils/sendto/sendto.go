@@ -1,9 +1,11 @@
 package sendto
 
 import (
+	"bytes"
 	"fmt"
 	"net/smtp"
 	"strings"
+	"text/template"
 
 	"github.com/TaKieuLong/golang_fresher/global"
 	"go.uber.org/zap"
@@ -53,3 +55,70 @@ func SendTextEmailOtp(to []string, from string, otp string) (string, error) {
 	}
 	return "", nil
 }	
+
+
+func SendTemplateEmailOtp(
+	to []string,
+	from string,
+	nameTemplate string,
+	dataTemplate map[string]interface{},
+) error {
+	htmlBody, err := getMailTemplate(nameTemplate, dataTemplate)
+	if err != nil {
+		return err
+	}
+
+	return send(to, from, htmlBody)
+}
+
+func getMailTemplate(
+	nameTemplate string,
+	dataTemplate map[string]interface{},
+) (string, error) {
+	htmlTemplate := new(bytes.Buffer)
+
+	t := template.Must(
+		template.New(nameTemplate).
+			ParseFiles("templates-email/" + nameTemplate),
+	)
+
+	err := t.Execute(htmlTemplate, dataTemplate)
+	if err != nil {
+		return "", err
+	}
+
+	return htmlTemplate.String(), nil
+}
+
+func send(to []string, from string, htmlTemplate string) error {
+	contentEmail := Mail{
+		From:    EmailAddress{Address: from, Name: "test"},
+		To:      to,
+		Subject: "OTP Verification",
+		Body:    htmlTemplate,
+	}
+
+	messageMail := BuildMessage(contentEmail)
+
+	// send smtp
+	auth := smtp.PlainAuth(
+		"",
+		SMTP_USER,
+		SMTP_PASSWORD,
+		SMTP_HOST,
+	)
+
+	err := smtp.SendMail(
+		SMTP_HOST+":587",
+		auth,
+		from,
+		to,
+		[]byte(messageMail),
+	)
+	if err != nil {
+		global.Logger.Error("Email send failed::", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
