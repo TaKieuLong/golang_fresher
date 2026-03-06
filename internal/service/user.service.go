@@ -2,13 +2,12 @@ package service
 
 import (
 	"crypto/sha256"
+	"encoding/json"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/TaKieuLong/golang_fresher/internal/repo"
 	"github.com/TaKieuLong/golang_fresher/internal/utils/random"
-	"github.com/TaKieuLong/golang_fresher/internal/utils/sendto"
 
 	"github.com/TaKieuLong/golang_fresher/pkg/response"
 )
@@ -48,11 +47,21 @@ func (us *userService) Register(email string, purpose string) int {
 		return response.ErrInvalidOTP
 	}
 	//semdEmail OTP
-	err = sendto.SendTemplateEmailOtp([]string{email}, email, "otp.auth.html", map[string]interface{}{
-		"otp": strconv.Itoa(otp),
-	})
-	if err != nil {	
-		return response.ErrInvalidOTP
+	// err = sendto.SendTemplateEmailOtp([]string{email}, email, "otp.auth.html", map[string]interface{}{
+	// 	"otp": strconv.Itoa(otp),
+	// })
+	// if err != nil {	
+	// 	return response.ErrInvalidOTP
+	// }
+
+	//send OTP via Kafka
+	body:= make(map[string]interface{})
+	body["email"] = email
+	body["otp"] = otp
+
+	bodyRequest, err := json.Marshal(body)
+	if err != nil {
+		return response.ErrCodeSendEmailFailed
 	}
 	//
 	return response.ErrCodeSuccess									
